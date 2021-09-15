@@ -1,0 +1,122 @@
+<template>
+
+    <lightning-card title="Search Contacts" icon-name="custom:custom63">
+        <div class="slds-m-around_medium">
+           <lightning-input type="search" label="Search"  onchange={handleKeyChange} class="slds-m-bottom_small"></lightning-input>
+            <template if:true={Form__c}>
+                <div style="height: 300px;">
+                    <lightning-datatable
+                    key-field="Id"
+                    columns={col}
+                    onrowaction={handleRowAction}
+                    data={Form__c}>
+                    </lightning-datatable>
+                </div>
+            </template>
+            <template if:true = {error}>
+                {error}>
+            </template>
+
+            <!--row action-->
+            <template if:true={rowShowModal}>
+                <!--modal section open-->
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true" aria-describedby="modal-content-id-2" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal-container" style="background-color: #fff;">
+                <!--modal header open-->
+                <header class="slds-modal_header">
+                    <button class="slds-button slds-button_icon slds-modal_close slds-button_icon-inverse" title="Close" onclick={closedModal}>
+                    </button>
+                    <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate" if:false={isEditForm}>VIEW FORM</h2>
+                    <h2 id="modal-heading-03" class="slds-text-heading_medium slds-hyphenate" if:true={isEditForm}>Update record Values</h2>
+                </header>
+                <!--body for record view form-->
+             <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2" if:false={isEditForm} style ="background-color: rgb(194, 186, 186); border: double; border-width: 2px">
+                <dl class="slds-list_horizontal slds-wrap" style="font-size: 20px ; font-family: monotypeFone; ">
+                    <dt class="slds-item_label slds-truncate" title="First_Name__c">First Name:</dt>
+                    <dd class="slds-item_detail slds-truncate">{record.First_Name__c}</dd>
+                    <dt class="slds-item_label slds-truncate" title="Last_Name__c">Last Name:</dt>
+                    <dd class="slds-item_detail slds-truncate">{record.Last_Name__c}</dd>
+                    <dt class="slds-item_label slds-truncate" title="Gender__c">Gender:</dt>
+                    <dd class="slds-item_detail slds-truncate">{record.Gender__c}</dd>
+                    <dt class="slds-item_label slds-truncate" title="Country__c">Country:</dt>
+                    <dd class="slds-item_detail slds-truncate">{record.Country__c}</dd>
+                    <dt class="slds-item_label slds-truncate" title="Phone__c">Phone:</dt>
+                    <dd class="slds-item_detail slds-truncate"><lightning-formatted-phone value={record.Phone__c}></lightning-formatted-phone></dd>
+                    <dt class="slds-item_label slds-truncate" title="Email__c">Email:</dt>
+                    <dd class="slds-item_detail slds-truncate"><lightning-formatted-email value={record.Email__c}></lightning-formatted-email></dd>
+                </dl>
+             </div>
+             </div>
+             <!-- showing record edit form -->
+             <div if:true={isEditForm} class="slds-theme_default" style="border: solid; border-color:grey">
+            <lightning-record-edit-form layout-type="Compact" record-id={currentRecordId} object-api-name="Form__c" >
+                    <lightning-messages></lightning-messages>
+                    <lightning-output-field field-name="Name"></lightning-output-field>
+                    <lightning-input-field field-name="First_Name__c"></lightning-input-field>
+                    <lightning-input-field field-name="Last_Name__c"></lightning-input-field>
+                    <lightning-input-field field-name="Gender__c"></lightning-input-field>
+                    <lightning-input-field field-name="Country__c"></lightning-input-field>
+                    <lightning-input-field field-name="Phone__c"></lightning-input-field>
+                    <lightning-input-field field-name="Email__c"></lightning-input-field>
+                    <div style="text-align:center;">
+                        <lightning-button style="margin-top: 300px ;" class="slds-m-top_small" variant="destructive" type="cancel" label="Close" onclick={closedModal}>
+                        </lightning-button>
+                        <lightning-button style="margin-top: 250px ; " class="slds-m-top_small" variant="brand" type="submit" name="update" label="Update Record" onclick={close}></lightning-button>
+                    </div>
+                </lightning-record-edit-form>
+                <div>
+                </div>
+            </div>
+            <!-- modal footer start-->
+            <footer class="slds-modal__footer" if:false={isEditForm}>
+                <lightning-button variant="brand" label="Close" title="Close" onclick={closedModal}></lightning-button>
+            </footer>
+                </section>
+            </template>
+        </div>
+    </lightning-card>
+
+        <!--modal start for adding new contact-->
+    <template if:true={bShowModal}>
+        <!--section open-->
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal_container" style="background-color: #fff;">
+                <!--header open-->
+                <header class="slds-modal_header">
+                    <button class="slds-button slds-button_icon slds-modal_close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close" variant="inverse" size="small">
+                        </lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                   <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Data</h2>
+                </header>
+                <!--header closed-->
+                <!--modal body-->
+                <div class="slds-modal_content slds-p-around_medium" id="modal-content-id-1">
+                    <lightning-record-edit-form object-api-name="Form__c">
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="First_Name__c"></lightning-input-field>
+                        <lightning-input-field field-name="Last_Name__c"></lightning-input-field>
+                        <lightning-input-field field-name="Gender__c"></lightning-input-field>
+                        <lightning-input-field field-name="Country__c"></lightning-input-field>
+                        <lightning-input-field type="number" field-name="Phone__c" maxlength="10"></lightning-input-field>
+                        <lightning-input-field type="email" field-name="Email__c"></lightning-input-field>
+                     <div>
+                        <lightning-button style="margin-left: 35%;" label="Cancel" type="Cancel" onclick={closeModal}></lightning-button>
+                        <lightning-button style="margin-right: 55%;" label="Save" type="submit" onclick={refreshPage} variant="success" ></lightning-button>
+                     </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+        </section>
+        <!--section closed-->
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+    <!--modal closed-->
+
+       <div>
+         <lightning-button style="margin-top: 300px ; margin-left: 35%" variant="brand" label="Create New Contact" class="slds-float-left" onclick={openModal}></lightning-button>
+    <!--   <lightning-button style="margin-top: 300px ; margin-right: 45%" variant="destructive" label="Delete" class="slds-float-left" onclick={deleteRecord}></lightning-button> -->
+        </div>
+
+</template>
